@@ -7,11 +7,41 @@ UseTab: ForIndentation
 ---
 Language: Cpp
 AccessModifierOffset: -4
+AlignArrayOfStructures: Left
+AlignConsecutiveAssignments: true
+AlignConsecutiveBitFields: true
+AlignConsecutiveDeclarations: true
+AlignConsecutiveMacros: true
 AlignEscapedNewlines: Left
 AllowShortFunctionsOnASingleLine: Inline
 AlwaysBreakTemplateDeclarations: Yes
 BreakBeforeBraces: Linux
 FixNamespaceComments: true
+IncludeBlocks: Regroup
+IncludeCategories:
+  # Project
+  - Regex:    '^"(static|sys|test)/'
+    Priority: 2
+  - Regex:    '^"'
+    Priority: -1
+  # Espressif
+  - Regex:    '^<sdkconfig\.h>'
+    Priority: 10
+  - Regex:    '^<freertos/'
+    Priority: 12
+  - Regex:    '^<(bits|sys)/'
+    Priority: 13
+  - Regex:    '^<[^.]+\.'
+    Priority: 11
+  # C++ Standard Library
+  - Regex:    '^<[[:lower:]_]+>'
+    Priority: 20
+  # Unknown
+  - Regex:    '^<'
+    Priority: 18
+  - Regex:    '.*'
+    Priority: 19
 InsertBraces: true
 ShortNamespaceLines: 0
+SortIncludes: CaseSensitive
 ...
