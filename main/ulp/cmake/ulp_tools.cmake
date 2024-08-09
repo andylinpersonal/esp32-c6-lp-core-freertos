@@ -87,7 +87,6 @@ function(ulp_apply_default_sources ulp_app_name)
     set(bypassWarning "${IDF_TARGET}")
 
     list(APPEND ULP_S_SOURCES
-        "${IDF_PATH}/components/ulp/lp_core/lp_core/start.S"
         "${IDF_PATH}/components/ulp/lp_core/lp_core/vector.S"
         "${IDF_PATH}/components/ulp/lp_core/lp_core/port/${IDF_TARGET}/vector_table.S"
         "${IDF_PATH}/components/ulp/lp_core/shared/ulp_lp_core_memory_shared.c"
@@ -108,6 +107,7 @@ function(ulp_apply_default_sources ulp_app_name)
         "${CMAKE_CURRENT_FUNCTION_LIST_DIR}/../freertos/libc/abort.c"
         "${CMAKE_CURRENT_FUNCTION_LIST_DIR}/../freertos/libc/int64.c"
         "${CMAKE_CURRENT_FUNCTION_LIST_DIR}/../freertos/libc/string.c"
+        "${CMAKE_CURRENT_FUNCTION_LIST_DIR}/../freertos/lp_core/start.S"
         "${CMAKE_CURRENT_FUNCTION_LIST_DIR}/../freertos/lp_core/lp_core_interrupt.c")
 
     set(target_folder ${IDF_TARGET})

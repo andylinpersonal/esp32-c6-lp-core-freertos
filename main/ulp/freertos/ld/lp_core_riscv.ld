@@ -50,6 +50,7 @@ SECTIONS
 
     .rodata ALIGN(4):
     {
+        PROVIDE_HIDDEN (__global_pointer$ = . + 0x800);
         *(.rodata)
         *(.rodata*)
     } > ram

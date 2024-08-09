@@ -80,6 +80,7 @@
 .extern lp_core_print_hex
 #endif
 
+.extern __global_pointer$
 .extern _panic_handler__real
 .extern ulp_lp_core_intr_handler
 /*-----------------------------------------------------------*/
@@ -143,9 +144,14 @@
  * x7
  * x6
  * x5
- * portTASK_RETURN_ADDRESS
+ * x4
+ * x3
+ * x2=portTASK_RETURN_ADDRESS
  * [chip specific registers go here]
  * pxCode
+ */
+/**
+ * @see ${IDF_PATH}/components/freertos/FreeRTOS-Kernel/portable/riscv/port.c
  */
 .type pxPortInitialiseStack,@function
 pxPortInitialiseStack:
@@ -164,6 +170,16 @@ pxPortInitialiseStack:
 
     store_x a2, 0(a0)                   /* Task parameters (pvParameters parameter) goes into register X10/a0 on the stack. */
     addi a0, a0, -(6 * portWORD_SIZE)   /* Space for registers x5-x9 + taskReturnAddress. */
+
+.option push
+.option norelax
+    addi a0, a0, -portWORD_SIZE
+    la   t0, __global_pointer$          /* Initialize global pointer */
+    store_x t0, 0(a0)                   /* gp onto the stack. */
+.option pop
+    addi a0, a0, -portWORD_SIZE
+    store_x  x0, 0(a0)                  /* TODO: Initialize tp */
+
     load_x t0, xTaskReturnAddress
     store_x t0, 0(a0)                   /* Return address onto the stack. */
     addi t0, x0, portasmADDITIONAL_CONTEXT_SIZE /* The number of chip specific additional registers. */
@@ -188,31 +204,37 @@ xPortStartFirstTask:
 
     portasmRESTORE_ADDITIONAL_REGISTERS /* Defined in freertos_risc_v_chip_specific_extensions.h to restore any registers unique to the RISC-V implementation. */
 
-    load_x  x7, 4 * portWORD_SIZE( sp )     /* t2 */
-    load_x  x8, 5 * portWORD_SIZE( sp )     /* s0/fp */
-    load_x  x9, 6 * portWORD_SIZE( sp )     /* s1 */
-    load_x  x10, 7 * portWORD_SIZE( sp )    /* a0 */
-    load_x  x11, 8 * portWORD_SIZE( sp )    /* a1 */
-    load_x  x12, 9 * portWORD_SIZE( sp )    /* a2 */
-    load_x  x13, 10 * portWORD_SIZE( sp )   /* a3 */
-    load_x  x14, 11 * portWORD_SIZE( sp )   /* a4 */
-    load_x  x15, 12 * portWORD_SIZE( sp )   /* a5 */
-    load_x  x16, 13 * portWORD_SIZE( sp )   /* a6 */
-    load_x  x17, 14 * portWORD_SIZE( sp )   /* a7 */
-    load_x  x18, 15 * portWORD_SIZE( sp )   /* s2 */
-    load_x  x19, 16 * portWORD_SIZE( sp )   /* s3 */
-    load_x  x20, 17 * portWORD_SIZE( sp )   /* s4 */
-    load_x  x21, 18 * portWORD_SIZE( sp )   /* s5 */
-    load_x  x22, 19 * portWORD_SIZE( sp )   /* s6 */
-    load_x  x23, 20 * portWORD_SIZE( sp )   /* s7 */
-    load_x  x24, 21 * portWORD_SIZE( sp )   /* s8 */
-    load_x  x25, 22 * portWORD_SIZE( sp )   /* s9 */
-    load_x  x26, 23 * portWORD_SIZE( sp )   /* s10 */
-    load_x  x27, 24 * portWORD_SIZE( sp )   /* s11 */
-    load_x  x28, 25 * portWORD_SIZE( sp )   /* t3 */
-    load_x  x29, 26 * portWORD_SIZE( sp )   /* t4 */
-    load_x  x30, 27 * portWORD_SIZE( sp )   /* t5 */
-    load_x  x31, 28 * portWORD_SIZE( sp )   /* t6 */
+.option push
+.option norelax
+    load_x  x3,  2  * portWORD_SIZE( sp )   /* gp */
+.option pop
+    load_x  x4,  3  * portWORD_SIZE( sp )   /* tp */
+
+    load_x  x7,  6  * portWORD_SIZE( sp )   /* t2 */
+    load_x  x8,  7  * portWORD_SIZE( sp )   /* s0/fp */
+    load_x  x9,  8  * portWORD_SIZE( sp )   /* s1 */
+    load_x  x10, 9  * portWORD_SIZE( sp )   /* a0 */
+    load_x  x11, 10 * portWORD_SIZE( sp )   /* a1 */
+    load_x  x12, 11 * portWORD_SIZE( sp )   /* a2 */
+    load_x  x13, 12 * portWORD_SIZE( sp )   /* a3 */
+    load_x  x14, 13 * portWORD_SIZE( sp )   /* a4 */
+    load_x  x15, 14 * portWORD_SIZE( sp )   /* a5 */
+    load_x  x16, 15 * portWORD_SIZE( sp )   /* a6 */
+    load_x  x17, 16 * portWORD_SIZE( sp )   /* a7 */
+    load_x  x18, 17 * portWORD_SIZE( sp )   /* s2 */
+    load_x  x19, 18 * portWORD_SIZE( sp )   /* s3 */
+    load_x  x20, 19 * portWORD_SIZE( sp )   /* s4 */
+    load_x  x21, 20 * portWORD_SIZE( sp )   /* s5 */
+    load_x  x22, 21 * portWORD_SIZE( sp )   /* s6 */
+    load_x  x23, 22 * portWORD_SIZE( sp )   /* s7 */
+    load_x  x24, 23 * portWORD_SIZE( sp )   /* s8 */
+    load_x  x25, 24 * portWORD_SIZE( sp )   /* s9 */
+    load_x  x26, 25 * portWORD_SIZE( sp )   /* s10 */
+    load_x  x27, 26 * portWORD_SIZE( sp )   /* s11 */
+    load_x  x28, 27 * portWORD_SIZE( sp )   /* t3 */
+    load_x  x29, 28 * portWORD_SIZE( sp )   /* t4 */
+    load_x  x30, 29 * portWORD_SIZE( sp )   /* t5 */
+    load_x  x31, 30 * portWORD_SIZE( sp )   /* t6 */
 
     load_x  x5, portCRITICAL_NESTING_OFFSET * portWORD_SIZE( sp )    /* Obtain xCriticalNesting value for this task from task's stack. */
     load_x  x6, pxCriticalNesting           /* Load the address of xCriticalNesting into x6. */
@@ -222,8 +244,8 @@ xPortStartFirstTask:
     addi    x5, x5, 0x08                    /* Set MIE bit so the first task starts with interrupts enabled - required as returns with ret not eret. */
     csrrw   x0, mstatus, x5                 /* Interrupts enabled from here! */
 
-    load_x  x5, 2 * portWORD_SIZE( sp )     /* Initial x5 (t0) value. */
-    load_x  x6, 3 * portWORD_SIZE( sp )     /* Initial x6 (t1) value. */
+    load_x  x5, 4 * portWORD_SIZE( sp )     /* Initial x5 (t0) value. */
+    load_x  x6, 5 * portWORD_SIZE( sp )     /* Initial x6 (t1) value. */
 
     addi    sp, sp, portCONTEXT_SIZE
     ret

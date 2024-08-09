@@ -70,7 +70,7 @@ static void test_task_func(void *)
 		for (size_t i = 0; i < WAIT_RATIO; i++) {
 			xSemaphoreTake(print_lock, portMAX_DELAY);
 		}
-		atomic_fetch_add(&lp_core_started, 1);
+		atomic_store(&lp_core_started, 1);
 	}
 }
 /*-----------------------------------------------------------*/
