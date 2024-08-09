@@ -17,8 +17,9 @@
 #include <stdint.h>
 #include <string.h>
 
-ATOMIC(uint32_t) lp_core_started = 0;
-uint64_t lp_core_mcycle          = 0;
+ATOMIC(bool) lp_core_started = false;
+ATOMIC(bool) hp_core_init    = false;
+uint64_t lp_core_mcycle      = 0;
 
 static const char TAG[] = "ulp";
 
